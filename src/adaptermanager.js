@@ -44,12 +44,14 @@ function getLabels(bidOrAdUnit, activeLabels) {
 }
 
 function getBids({bidderCode, auctionId, bidderRequestId, adUnits, labels}) {
-  return adUnits.reduce((result, adUnit) => {
-    if (active) {
+	let {active} = resolveStatus(getLabels(adUnit, labels), adUnit.sizes);
+	
+	return adUnits.reduce((result, adUnit) => {
+		if (active) {
       result.push(adUnit.bids.filter(bid => bid.bidder === bidderCode)
         .reduce((bids, bid) => {
 
-					let {active, sizes: filteredAdUnitSizes} = resolveStatus(getLabels(adUnit, labels), bid.sizes | adUnit.sizes);
+					let {sizes: filteredAdUnitSizes} = resolveStatus(getLabels(adUnit, labels), bid.sizes | adUnit.sizes);
 
           if (adUnit.mediaTypes) {
             if (utils.isValidMediaTypes(adUnit.mediaTypes)) {
