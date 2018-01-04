@@ -45,11 +45,12 @@ function getLabels(bidOrAdUnit, activeLabels) {
 
 function getBids({bidderCode, auctionId, bidderRequestId, adUnits, labels}) {
   return adUnits.reduce((result, adUnit) => {
-    let {active, sizes: filteredAdUnitSizes} = resolveStatus(getLabels(adUnit, labels), adUnit.sizes);
-
     if (active) {
       result.push(adUnit.bids.filter(bid => bid.bidder === bidderCode)
         .reduce((bids, bid) => {
+
+					let {active, sizes: filteredAdUnitSizes} = resolveStatus(getLabels(adUnit, labels), bid.sizes | adUnit.sizes);
+
           if (adUnit.mediaTypes) {
             if (utils.isValidMediaTypes(adUnit.mediaTypes)) {
               bid = Object.assign({}, bid, {mediaTypes: adUnit.mediaTypes});
