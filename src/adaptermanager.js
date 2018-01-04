@@ -30,11 +30,32 @@ VALID_ORDERS[FIXED] = true;
 var _analyticsRegistry = {};
 let _bidderSequence = RANDOM;
 
+function arraysEqual(arr1, arr2) {
+	if( arr1[0] !== arr2[0] || arr1[1] !== arr2[1] ) {
+		return false;
+	}
+	return true;
+}
+
 function getBids({bidderCode, requestId, bidderRequestId, adUnits}) {
   return adUnits.map(adUnit => {
     return adUnit.bids.filter(bid => bid.bidder === bidderCode)
       .map(bid => {
-        let sizes = adUnit.sizes;
+				let sizes = adUnit.sizes;
+
+				if ( bid.sizes ) {
+					// Set sizes equal to the intersect of bid sizes and adUnit sizes
+				  sizes = bid.sizes.reduce((newSizes, bidSize) => { 
+						for (let i = 0; i < adUnit.sizes.length; i++) {
+							if (arraysEqual(bidSize, adUnit.sizes[i])) {
+								newSizes.push(bidSize);
+								break;
+							}
+						}
+						return newSizes;
+					}, []);
+				}
+
         if (adUnit.sizeMapping) {
           let sizeMapping = mapSizes(adUnit);
           if (sizeMapping === '') {
