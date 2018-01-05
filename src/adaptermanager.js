@@ -43,21 +43,39 @@ function getLabels(bidOrAdUnit, activeLabels) {
   return {labelAll: false, labels: bidOrAdUnit.labelAny, activeLabels};
 }
 
-function getBids({bidderCode, auctionId, bidderRequestId, adUnits, labels}) {
-  return adUnits.reduce((result, adUnit) => {
-    let {active, sizes: filteredAdUnitSizes} = resolveStatus(getLabels(adUnit, labels), adUnit.sizes);
+var _analyticsRegistry = {};
+let _bidderSequence = RANDOM;
 
-    if (active) {
-      result.push(adUnit.bids.filter(bid => bid.bidder === bidderCode)
-        .reduce((bids, bid) => {
-          if (adUnit.mediaTypes) {
-            if (utils.isValidMediaTypes(adUnit.mediaTypes)) {
-              bid = Object.assign({}, bid, {mediaTypes: adUnit.mediaTypes});
-            } else {
-              utils.logError(
-                `mediaTypes is not correctly configured for adunit ${adUnit.code}`
-              );
-            }
+function arraysEqual(arr1, arr2) {
+	if( arr1[0] !== arr2[0] || arr1[1] !== arr2[1] ) {
+		return false;
+	}
+	return true;
+}
+
+function getBids({bidderCode, requestId, bidderRequestId, adUnits}) {
+  return adUnits.map(adUnit => {
+    return adUnit.bids.filter(bid => bid.bidder === bidderCode)
+      .map(bid => {
+				let sizes = adUnit.sizes;
+
+				if ( bid.sizes ) {
+					// Set sizes equal to the intersect of bid sizes and adUnit sizes
+				  sizes = bid.sizes.reduce((newSizes, bidSize) => { 
+						for (let i = 0; i < adUnit.sizes.length; i++) {
+							if (arraysEqual(bidSize, adUnit.sizes[i])) {
+								newSizes.push(bidSize);
+								break;
+							}
+						}
+						return newSizes;
+					}, []);
+				}
+
+        if (adUnit.sizeMapping) {
+          let sizeMapping = mapSizes(adUnit);
+          if (sizeMapping === '') {
+            return '';
           }
 
           const nativeParams =
