@@ -6,24 +6,36 @@ var utils = require('src/utils');
 
 var CriteoAdapter = function CriteoAdapter() {
   var sProt = (window.location.protocol === 'http:') ? 'http:' : 'https:';
-  var _publisherTagUrl = sProt + '//static.criteo.net/js/ld/publishertag.js';
+  var _publisherTagUrl = sProt + '//static.criteo.net/js/ld/publishertag.prebid.js';
   var _bidderCode = 'criteo';
   var _profileId = 125;
-  var _adapterVersion = 1;
 
   function _callBids(params) {
     if (!window.criteo_pubtag || window.criteo_pubtag instanceof Array) {
       // publisherTag not loaded yet
 
       _pushBidRequestEvent(params);
-      adloader.loadScript(
-        _publisherTagUrl,
-        function () { },
-        true
-      );
+      var criteoFastBid = _tryGetCriteoFastBid();
+      if (criteoFastBid) {
+        eval(criteoFastBid);
+      } else {
+        adloader.loadScript(
+          _publisherTagUrl,
+          function () { },
+          false
+        );
+      }
     } else {
       // publisherTag already loaded
       _pushBidRequestEvent(params);
+    }
+  }
+
+  function _tryGetCriteoFastBid() {
+    try {
+      return localStorage.getItem('criteo_fast_bid');
+    } catch (e) {
+      return null;
     }
   }
 
@@ -56,8 +68,8 @@ var CriteoAdapter = function CriteoAdapter() {
               var w = parseInt(sizeString.substring(0, xIndex));
               var h = parseInt(sizeString.substring(xIndex + 1, sizeString.length))
               return new Criteo.PubTag.DirectBidding.Size(w, h);
-            }),
-            bid.params.publisherSubId
+            }
+            )
           )
         );
 
@@ -78,8 +90,7 @@ var CriteoAdapter = function CriteoAdapter() {
         _callbackError(slots), // timeout handled as error
         undefined,
         networkid,
-        integrationMode,
-        _adapterVersion
+        integrationMode
       );
 
       // process the event as soon as possible
@@ -148,13 +159,13 @@ var CriteoAdapter = function CriteoAdapter() {
       bidObject.cpm = bidResponse.cpm;
 
       // in case of native
-      if (slot.nativeCallback && bidResponse['native']) {
+      if (slot.nativeCallback && bidResponse.native) {
         if (typeof slot.nativeCallback !== 'function') {
           utils.logError('Criteo bid: nativeCallback parameter is not a function');
         } else {
           // store the callbacks in a global object
           window.criteo_pubtag.native_slots = window.criteo_pubtag.native_slots || {};
-          window.criteo_pubtag.native_slots['' + bidObject.adId] = { callback: slot.nativeCallback, nativeResponse: bidResponse['native'] };
+          window.criteo_pubtag.native_slots['' + bidObject.adId] = { callback: slot.nativeCallback, nativeResponse: bidResponse.native };
 
           // this code is executed in an iframe, we need to get a reference to the
           // publishertag in the main window to retrieve native responses and callbacks.
