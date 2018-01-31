@@ -33,7 +33,8 @@
     "BID_WON": "bidWon",
     "SET_TARGETING": "setTargeting",
     "REQUEST_BIDS": "requestBids",
-    "ADD_AD_UNITS": "addAdUnits"
+    "ADD_AD_UNITS": "addAdUnits",
+    "PLACEMENT_AUCTION_ENDED": "placementAuctionEnded"
   },
   "EVENT_ID_PATHS": {
     "bidWon": "adUnitCode"

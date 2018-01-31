@@ -98,8 +98,32 @@ export function newAuction({adUnits, adUnitCodes, callback, cbTimeout, labels}) 
   let _timeout = cbTimeout;
   let _winningBid;
 
-  function addBidRequests(bidderRequests) { _bidderRequests = _bidderRequests.concat(bidderRequests) };
-  function addBidReceived(bidsReceived) { _bidsReceived = _bidsReceived.concat(bidsReceived); }
+  const adUnitTracker = {
+    counts: {},
+    increment: function(bids) {
+      bids.forEach((bid) => {
+        const code = bid.adUnitCode
+        this.counts[code] = this.counts[code] || 0;
+        this.counts[code]++;
+      })
+    },
+    decrement: function(adUnitCode) {
+      this.counts[adUnitCode]--;
+      if (this.counts[adUnitCode] === 0) {
+        events.emit(CONSTANTS.EVENTS.PLACEMENT_AUCTION_ENDED, adUnitCode);
+      }
+    }
+  };
+
+  function addBidRequests(bidderRequests) {
+    adUnitTracker.increment(bidderRequests.bids);
+    _bidderRequests = _bidderRequests.concat(bidderRequests)
+  }
+
+  function addBidReceived(bidsReceived) {
+    adUnitTracker.decrement(bidResponse.adUnitCode);
+    _bidsReceived = _bidsReceived.concat(bidsReceived)
+  }
 
   function startAuctionTimer() {
     const timedOut = true;
