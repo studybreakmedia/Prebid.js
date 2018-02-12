@@ -95,6 +95,25 @@ export const spec = {
       adUnits = [];
     }
     bidResponses = createBidResponses(adUnits, bidRequest.payload);
+
+    // Create an empty bidResponse for all bids that did not come back.
+    const responseIds = bidResponses.map((bidResponse) => bidResponse.requestId);
+    bidRequest.payload.bids.forEach((bid) => {
+      if (responseIds.indexOf(bid.bidId) === -1) {
+        bidResponses.push({
+          requestId: bid.bidId,
+          cpm: 0,
+          width: 1,
+          height: 1,
+          creativeId: null,
+          dealId: null,
+          currency: 'USD',
+          netRevenue: true,
+          mediaType: _mediaTypes.BANNER,
+          ttl: 60000
+        })
+      }
+    });
     return bidResponses;
   }
 };
