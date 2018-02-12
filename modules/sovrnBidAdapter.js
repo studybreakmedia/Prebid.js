@@ -93,7 +93,8 @@ export const spec = {
             currency: 'USD',
             netRevenue: true,
             mediaType: _mediaTypes.BANNER,
-            ttl: 60000
+            ttl: 60000,
+            ad: null
           });
         }
       });
