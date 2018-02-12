@@ -52,14 +52,16 @@ export const spec = {
    * @param {id, seatbid} sovrnResponse A successful response from Sovrn.
    * @return {Bid[]} An array of formatted bids.
   */
-  interpretResponse: function({ body: {id, seatbid} }) {
+  interpretResponse: function({ body: {id, seatbid} }, request) {
     let sovrnBidResponses = [];
+    const responseIds = []
     if (id &&
       seatbid &&
       seatbid.length > 0 &&
       seatbid[0].bid &&
       seatbid[0].bid.length > 0) {
       seatbid[0].bid.map(sovrnBid => {
+        responseIds.push(sovrnBid.impid);
         sovrnBidResponses.push({
           requestId: sovrnBid.impid,
           cpm: parseFloat(sovrnBid.price),
@@ -74,6 +76,30 @@ export const spec = {
           ttl: 60000
         });
       });
+    }
+    // Generate a zero cent bid for all of the bid requests that did not have responses.
+    // This will ensure that Prebid does not wait for bids that will never come back.
+    try {
+      const bidRequestObj = JSON.parse(request.data);
+      bidRequestObj.imp.forEach((bidRequest) => {
+        if (responseIds.indexOf(bidRequest.id) === -1) {
+          sovrnBidResponses.push({
+            requestId: bidRequest.id,
+            cpm: 0,
+            width: 1,
+            height: 1,
+            creativeId: null,
+            dealId: null,
+            currency: 'USD',
+            netRevenue: true,
+            mediaType: _mediaTypes.BANNER,
+            ttl: 60000,
+            ad: null
+          });
+        }
+      });
+    } catch (e) {
+
     }
     return sovrnBidResponses;
   }
