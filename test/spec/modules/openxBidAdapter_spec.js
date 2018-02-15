@@ -303,7 +303,8 @@ describe('OpenxAdapter', () => {
       };
 
       let result = spec.interpretResponse({body: bidResponse}, bidRequest);
-      expect(result.length).to.equal(0);
+      // We should now return an empty bid response
+      expect(result.length).to.equal(1);
     });
   });
 
