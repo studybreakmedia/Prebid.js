@@ -36,6 +36,14 @@ Note: the pull request should be opened against studybreakmedia/Prebid.js master
 	$ git checkout -b sbm-1.3.1
 	$ git push --set-upstream origin sbm-1.3.1
 
+3) Build the assets (specifically prebid.js) and commit them to the branch.  You should only see changes to the /build directory.  (see the README.md from prebid/Prebid.js for install and build instructions)
+
+	$ gulp build --modules=sbm-modules.json
+	$ git add build/
+	$ git commit -m "Build prebid.js and assets." && git push
+
+Any additional PRs with an update/fix for this branch also **must include commits updating the build assets** otherwise the change will not be reflacted in ad-vantage (see below).
+
 3) **In the ad-vantage repo,** update package.json to the new branch.  Run `npm install` and restart your watches to begin building the ad-vantage bundle with the updated Prebid code.
 
 	diff --git a/package.json b/package.json
