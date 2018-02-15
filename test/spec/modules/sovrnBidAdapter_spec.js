@@ -131,7 +131,8 @@ describe('sovrnBidAdapter', function() {
         }
       };
       let result = spec.interpretResponse(response);
-      expect(result.length).to.equal(0);
+      // Return an empty bid response
+      expect(result.length).to.equal(1);
     });
   });
 });
