@@ -109,7 +109,7 @@ export const spec = {
           dealId: null,
           currency: 'USD',
           netRevenue: true,
-          mediaType: _mediaTypes.BANNER,
+          mediaType: BANNER,
           ttl: 60000,
           ad: null
         })
