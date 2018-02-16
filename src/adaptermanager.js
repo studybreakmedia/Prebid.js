@@ -31,30 +31,30 @@ var _analyticsRegistry = {};
 let _bidderSequence = RANDOM;
 
 function arraysEqual(arr1, arr2) {
-	if( arr1[0] !== arr2[0] || arr1[1] !== arr2[1] ) {
-		return false;
-	}
-	return true;
+  if (arr1[0] !== arr2[0] || arr1[1] !== arr2[1]) {
+    return false;
+  }
+  return true;
 }
 
-function getBids({bidderCode, requestId, bidderRequestId, adUnits}) {
+function getBids({ bidderCode, requestId, bidderRequestId, adUnits }) {
   return adUnits.map(adUnit => {
     return adUnit.bids.filter(bid => bid.bidder === bidderCode)
       .map(bid => {
-				let sizes = adUnit.sizes;
+        let sizes = adUnit.sizes;
 
-				if ( bid.sizes ) {
-					// Set sizes equal to the intersect of bid sizes and adUnit sizes
-				  sizes = bid.sizes.reduce((newSizes, bidSize) => { 
-						for (let i = 0; i < adUnit.sizes.length; i++) {
-							if (arraysEqual(bidSize, adUnit.sizes[i])) {
-								newSizes.push(bidSize);
-								break;
-							}
-						}
-						return newSizes;
-					}, []);
-				}
+        if (bid.sizes) {
+          // Set sizes equal to the intersect of bid sizes and adUnit sizes
+          sizes = bid.sizes.reduce((newSizes, bidSize) => {
+            for (let i = 0; i < adUnit.sizes.length; i++) {
+              if (arraysEqual(bidSize, adUnit.sizes[i])) {
+                newSizes.push(bidSize);
+                break;
+              }
+            }
+            return newSizes;
+          }, []);
+        }
 
         if (adUnit.sizeMapping) {
           let sizeMapping = mapSizes(adUnit);
@@ -100,7 +100,7 @@ function getBids({bidderCode, requestId, bidderRequestId, adUnits}) {
   }).reduce(flatten, []).filter(val => val !== '');
 }
 
-exports.callBids = ({adUnits, cbTimeout}) => {
+exports.callBids = ({ adUnits, cbTimeout }) => {
   const requestId = utils.generateUUID();
   const auctionStart = Date.now();
 
@@ -119,7 +119,7 @@ exports.callBids = ({adUnits, cbTimeout}) => {
   const s2sAdapter = _bidderRegistry[_s2sConfig.adapter];
   if (s2sAdapter) {
     s2sAdapter.setConfig(_s2sConfig);
-    s2sAdapter.queueSync({bidderCodes});
+    s2sAdapter.queueSync({ bidderCodes });
   }
 
   let clientTestAdapters = [];
@@ -169,7 +169,7 @@ exports.callBids = ({adUnits, cbTimeout}) => {
         requestId,
         bidderRequestId,
         tid,
-        bids: getBids({bidderCode, requestId, bidderRequestId, 'adUnits': adUnitsS2SCopy}),
+        bids: getBids({ bidderCode, requestId, bidderRequestId, 'adUnits': adUnitsS2SCopy }),
         start: new Date().getTime(),
         auctionStart: auctionStart,
         timeout: _s2sConfig.timeout,
@@ -181,7 +181,7 @@ exports.callBids = ({adUnits, cbTimeout}) => {
       }
     });
 
-    let s2sBidRequest = {tid, 'ad_units': adUnitsS2SCopy};
+    let s2sBidRequest = { tid, 'ad_units': adUnitsS2SCopy };
     utils.logMessage(`CALLING S2S HEADER BIDDERS ==== ${adaptersServerSide.join(',')}`);
     if (s2sBidRequest.ad_units.length) {
       s2sAdapter.callBids(s2sBidRequest);
@@ -211,7 +211,7 @@ exports.callBids = ({adUnits, cbTimeout}) => {
         bidderCode,
         requestId,
         bidderRequestId,
-        bids: getBids({bidderCode, requestId, bidderRequestId, 'adUnits': adUnitsClientCopy}),
+        bids: getBids({ bidderCode, requestId, bidderRequestId, 'adUnits': adUnitsClientCopy }),
         auctionStart: auctionStart,
         timeout: cbTimeout
       };
@@ -259,7 +259,7 @@ function getSupportedMediaTypes(bidderCode) {
 
 exports.videoAdapters = []; // added by adapterLoader for now
 
-exports.registerBidAdapter = function (bidAdaptor, bidderCode, {supportedMediaTypes = []} = {}) {
+exports.registerBidAdapter = function (bidAdaptor, bidderCode, { supportedMediaTypes = [] } = {}) {
   if (bidAdaptor && bidderCode) {
     if (typeof bidAdaptor.callBids === 'function') {
       _bidderRegistry[bidderCode] = bidAdaptor;
@@ -310,7 +310,7 @@ exports.aliasBidAdapter = function (bidderCode, alias) {
   }
 };
 
-exports.registerAnalyticsAdapter = function ({adapter, code}) {
+exports.registerAnalyticsAdapter = function ({ adapter, code }) {
   if (adapter && code) {
     if (typeof adapter.enableAnalytics === 'function') {
       adapter.code = code;
@@ -348,7 +348,7 @@ exports.setBidderSequence = function (order) {
   }
 };
 
-exports.getBidAdapter = function(bidder) {
+exports.getBidAdapter = function (bidder) {
   return _bidderRegistry[bidder];
 };
 
