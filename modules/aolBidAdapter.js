@@ -303,6 +303,7 @@ function formatBidRequest(endpointCode, bid) {
 }
 
 function interpretResponse({body}, bidRequest) {
+  
   showCpmAdjustmentWarning();
   if (!body) {
     utils.logError('Empty bid response', bidRequest.bidderCode, body);
