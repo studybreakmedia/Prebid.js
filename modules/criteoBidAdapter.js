@@ -1,3 +1,4 @@
+/* eslint-disable */
 var bidfactory = require('src/bidfactory.js');
 var bidmanager = require('src/bidmanager.js');
 var adloader = require('src/adloader');
