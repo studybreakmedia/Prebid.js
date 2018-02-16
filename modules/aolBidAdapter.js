@@ -2,6 +2,7 @@ import * as utils from 'src/utils';
 import { registerBidder } from 'src/adapters/bidderFactory';
 import { config } from 'src/config';
 import constants from 'src/constants.json';
+import { BANNER } from 'src/mediaTypes';
 
 const AOL_BIDDERS_CODES = {
   AOL: 'aol',
@@ -303,7 +304,6 @@ function formatBidRequest(endpointCode, bid) {
 
 function interpretResponse({body}, bidRequest) {
   showCpmAdjustmentWarning();
-
   if (!body) {
     utils.logError('Empty bid response', bidRequest.bidderCode, body);
   } else {
@@ -312,6 +312,19 @@ function interpretResponse({body}, bidRequest) {
     if (bid) {
       return bid;
     }
+  }
+  return {
+    requestId: bidRequest.bidId,
+    cpm: 0,
+    width: 1,
+    height: 1,
+    creativeId: null,
+    dealId: null,
+    currency: 'USD',
+    netRevenue: true,
+    mediaType: BANNER,
+    ttl: 60000,
+    ad: null
   }
 }
 
