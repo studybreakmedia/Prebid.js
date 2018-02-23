@@ -35,8 +35,8 @@ export const spec = {
       id: utils.getUniqueIdentifierStr(),
       imp: sovrnImps,
       site: {
-        domain: window.location.host,
-        page: window.location.pathname + location.search + location.hash
+        domain: bid.params.domain || window.location.host,
+        page: bid.params.page || window.location.pathname + location.search + location.hash
       }
     };
     return {
