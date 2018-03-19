@@ -1,6 +1,6 @@
 [
   "aolBidAdapter",
-  "appnexusBidAdapter",
+  "appnexusAstBidAdapter",
   "criteoBidAdapter",
   "districtmDMXBidAdapter",
   "indexExchangeBidAdapter",
